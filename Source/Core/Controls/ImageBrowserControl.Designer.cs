@@ -33,7 +33,6 @@ namespace CodeImp.DoomBuilder.Controls
             this.labelMixMode = new System.Windows.Forms.Label();
             this.label = new System.Windows.Forms.Label();
             this.splitter = new System.Windows.Forms.SplitContainer();
-            this.list = new CodeImp.DoomBuilder.Controls.ImageSelectorPanel();
             this.filterColorIntensity = new System.Windows.Forms.TrackBar();
             this.filterColor = new System.Windows.Forms.Button();
             this.filterColorCheckBox = new System.Windows.Forms.CheckBox();
@@ -44,13 +43,14 @@ namespace CodeImp.DoomBuilder.Controls
             this.usedtexturesfirst = new System.Windows.Forms.CheckBox();
             this.longtexturenames = new System.Windows.Forms.CheckBox();
             this.filterheightlabel = new System.Windows.Forms.Label();
-            this.filterHeight = new CodeImp.DoomBuilder.Controls.ButtonsNumericTextbox();
             this.filterwidthlabel = new System.Windows.Forms.Label();
-            this.filterWidth = new CodeImp.DoomBuilder.Controls.ButtonsNumericTextbox();
             this.texturetypecombo = new System.Windows.Forms.ComboBox();
             this.objectname = new System.Windows.Forms.TextBox();
             this.refreshtimer = new System.Windows.Forms.Timer(this.components);
             this.filterColorDialog = new System.Windows.Forms.ColorDialog();
+            this.list = new CodeImp.DoomBuilder.Controls.ImageSelectorPanel();
+            this.filterHeight = new CodeImp.DoomBuilder.Controls.ButtonsNumericTextbox();
+            this.filterWidth = new CodeImp.DoomBuilder.Controls.ButtonsNumericTextbox();
             this.splitter.Panel1.SuspendLayout();
             this.splitter.Panel2.SuspendLayout();
             this.splitter.SuspendLayout();
@@ -111,37 +111,17 @@ namespace CodeImp.DoomBuilder.Controls
             this.splitter.Panel2.Controls.Add(this.objectname);
             this.splitter.Panel2.Controls.Add(this.label);
             this.splitter.Size = new System.Drawing.Size(1260, 519);
-            this.splitter.SplitterDistance = 333;
+            this.splitter.SplitterDistance = 331;
             this.splitter.SplitterWidth = 6;
             this.splitter.TabIndex = 0;
             this.splitter.TabStop = false;
             // 
-            // list
-            // 
-            this.list.AutoScroll = true;
-            this.list.BackColor = System.Drawing.Color.White;
-            this.list.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.list.ClassicView = false;
-            this.list.ContentType = "Textures";
-            this.list.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.list.HideSelection = false;
-            this.list.ImageSize = 128;
-            this.list.Location = new System.Drawing.Point(0, 0);
-            this.list.Margin = new System.Windows.Forms.Padding(4);
-            this.list.MultiSelect = false;
-            this.list.Name = "list";
-            this.list.Size = new System.Drawing.Size(1260, 333);
-            this.list.TabIndex = 1;
-            this.list.Title = "Default group";
-            this.list.UsedTexturesFirst = false;
-            this.list.ItemDoubleClicked += new CodeImp.DoomBuilder.Controls.ImageSelectorPanel.ItemSelectedEventHandler(this.list_ItemDoubleClicked);
-            this.list.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.list_KeyPress);
-            // 
             // filterColorIntensity
             // 
+            this.filterColorIntensity.Enabled = false;
             this.filterColorIntensity.Location = new System.Drawing.Point(943, 48);
             this.filterColorIntensity.Maximum = 200;
-            this.filterColorIntensity.Minimum = 50;
+            this.filterColorIntensity.Minimum = 10;
             this.filterColorIntensity.Name = "filterColorIntensity";
             this.filterColorIntensity.Size = new System.Drawing.Size(191, 69);
             this.filterColorIntensity.TabIndex = 7;
@@ -151,6 +131,7 @@ namespace CodeImp.DoomBuilder.Controls
             // 
             // filterColor
             // 
+            this.filterColor.Enabled = false;
             this.filterColor.Location = new System.Drawing.Point(882, 50);
             this.filterColor.Name = "filterColor";
             this.filterColor.Size = new System.Drawing.Size(55, 27);
@@ -260,27 +241,6 @@ namespace CodeImp.DoomBuilder.Controls
             this.filterheightlabel.TabIndex = 0;
             this.filterheightlabel.Text = "Height:";
             // 
-            // filterHeight
-            // 
-            this.filterHeight.AllowDecimal = false;
-            this.filterHeight.AllowExpressions = false;
-            this.filterHeight.AllowNegative = false;
-            this.filterHeight.AllowRelative = false;
-            this.filterHeight.ButtonStep = 1;
-            this.filterHeight.ButtonStepBig = 10F;
-            this.filterHeight.ButtonStepFloat = 1F;
-            this.filterHeight.ButtonStepSmall = 0.1F;
-            this.filterHeight.ButtonStepsUseModifierKeys = false;
-            this.filterHeight.ButtonStepsWrapAround = false;
-            this.filterHeight.Location = new System.Drawing.Point(452, 45);
-            this.filterHeight.Margin = new System.Windows.Forms.Padding(6);
-            this.filterHeight.Name = "filterHeight";
-            this.filterHeight.Size = new System.Drawing.Size(81, 30);
-            this.filterHeight.StepValues = null;
-            this.filterHeight.TabIndex = 0;
-            this.filterHeight.TabStop = false;
-            this.filterHeight.WhenTextChanged += new System.EventHandler(this.filterSize_WhenTextChanged);
-            // 
             // filterwidthlabel
             // 
             this.filterwidthlabel.AutoSize = true;
@@ -290,27 +250,6 @@ namespace CodeImp.DoomBuilder.Controls
             this.filterwidthlabel.Size = new System.Drawing.Size(54, 20);
             this.filterwidthlabel.TabIndex = 0;
             this.filterwidthlabel.Text = "Width:";
-            // 
-            // filterWidth
-            // 
-            this.filterWidth.AllowDecimal = false;
-            this.filterWidth.AllowExpressions = false;
-            this.filterWidth.AllowNegative = false;
-            this.filterWidth.AllowRelative = false;
-            this.filterWidth.ButtonStep = 1;
-            this.filterWidth.ButtonStepBig = 10F;
-            this.filterWidth.ButtonStepFloat = 1F;
-            this.filterWidth.ButtonStepSmall = 0.1F;
-            this.filterWidth.ButtonStepsUseModifierKeys = false;
-            this.filterWidth.ButtonStepsWrapAround = false;
-            this.filterWidth.Location = new System.Drawing.Point(298, 45);
-            this.filterWidth.Margin = new System.Windows.Forms.Padding(6);
-            this.filterWidth.Name = "filterWidth";
-            this.filterWidth.Size = new System.Drawing.Size(81, 30);
-            this.filterWidth.StepValues = null;
-            this.filterWidth.TabIndex = 0;
-            this.filterWidth.TabStop = false;
-            this.filterWidth.WhenTextChanged += new System.EventHandler(this.filterSize_WhenTextChanged);
             // 
             // texturetypecombo
             // 
@@ -346,6 +285,69 @@ namespace CodeImp.DoomBuilder.Controls
             // 
             this.refreshtimer.Interval = 500;
             this.refreshtimer.Tick += new System.EventHandler(this.refreshtimer_Tick);
+            // 
+            // list
+            // 
+            this.list.AutoScroll = true;
+            this.list.BackColor = System.Drawing.Color.White;
+            this.list.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.list.ClassicView = false;
+            this.list.ContentType = "Textures";
+            this.list.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.list.HideSelection = false;
+            this.list.ImageSize = 128;
+            this.list.Location = new System.Drawing.Point(0, 0);
+            this.list.Margin = new System.Windows.Forms.Padding(4);
+            this.list.MultiSelect = false;
+            this.list.Name = "list";
+            this.list.Size = new System.Drawing.Size(1260, 331);
+            this.list.TabIndex = 1;
+            this.list.Title = "Default group";
+            this.list.UsedTexturesFirst = false;
+            this.list.ItemDoubleClicked += new CodeImp.DoomBuilder.Controls.ImageSelectorPanel.ItemSelectedEventHandler(this.list_ItemDoubleClicked);
+            this.list.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.list_KeyPress);
+            // 
+            // filterHeight
+            // 
+            this.filterHeight.AllowDecimal = false;
+            this.filterHeight.AllowExpressions = false;
+            this.filterHeight.AllowNegative = false;
+            this.filterHeight.AllowRelative = false;
+            this.filterHeight.ButtonStep = 1;
+            this.filterHeight.ButtonStepBig = 10F;
+            this.filterHeight.ButtonStepFloat = 1F;
+            this.filterHeight.ButtonStepSmall = 0.1F;
+            this.filterHeight.ButtonStepsUseModifierKeys = false;
+            this.filterHeight.ButtonStepsWrapAround = false;
+            this.filterHeight.Location = new System.Drawing.Point(452, 45);
+            this.filterHeight.Margin = new System.Windows.Forms.Padding(6);
+            this.filterHeight.Name = "filterHeight";
+            this.filterHeight.Size = new System.Drawing.Size(81, 30);
+            this.filterHeight.StepValues = null;
+            this.filterHeight.TabIndex = 0;
+            this.filterHeight.TabStop = false;
+            this.filterHeight.WhenTextChanged += new System.EventHandler(this.filterSize_WhenTextChanged);
+            // 
+            // filterWidth
+            // 
+            this.filterWidth.AllowDecimal = false;
+            this.filterWidth.AllowExpressions = false;
+            this.filterWidth.AllowNegative = false;
+            this.filterWidth.AllowRelative = false;
+            this.filterWidth.ButtonStep = 1;
+            this.filterWidth.ButtonStepBig = 10F;
+            this.filterWidth.ButtonStepFloat = 1F;
+            this.filterWidth.ButtonStepSmall = 0.1F;
+            this.filterWidth.ButtonStepsUseModifierKeys = false;
+            this.filterWidth.ButtonStepsWrapAround = false;
+            this.filterWidth.Location = new System.Drawing.Point(298, 45);
+            this.filterWidth.Margin = new System.Windows.Forms.Padding(6);
+            this.filterWidth.Name = "filterWidth";
+            this.filterWidth.Size = new System.Drawing.Size(81, 30);
+            this.filterWidth.StepValues = null;
+            this.filterWidth.TabIndex = 0;
+            this.filterWidth.TabStop = false;
+            this.filterWidth.WhenTextChanged += new System.EventHandler(this.filterSize_WhenTextChanged);
             // 
             // ImageBrowserControl
             // 
