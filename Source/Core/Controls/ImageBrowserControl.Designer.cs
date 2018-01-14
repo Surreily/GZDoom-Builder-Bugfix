@@ -34,6 +34,9 @@ namespace CodeImp.DoomBuilder.Controls
             this.label = new System.Windows.Forms.Label();
             this.splitter = new System.Windows.Forms.SplitContainer();
             this.list = new CodeImp.DoomBuilder.Controls.ImageSelectorPanel();
+            this.filterColorIntensity = new System.Windows.Forms.TrackBar();
+            this.filterColor = new System.Windows.Forms.Button();
+            this.filterColorCheckBox = new System.Windows.Forms.CheckBox();
             this.classicview = new System.Windows.Forms.CheckBox();
             this.objectclear = new System.Windows.Forms.Button();
             this.sizecombo = new System.Windows.Forms.ComboBox();
@@ -47,26 +50,30 @@ namespace CodeImp.DoomBuilder.Controls
             this.texturetypecombo = new System.Windows.Forms.ComboBox();
             this.objectname = new System.Windows.Forms.TextBox();
             this.refreshtimer = new System.Windows.Forms.Timer(this.components);
+            this.filterColorDialog = new System.Windows.Forms.ColorDialog();
             this.splitter.Panel1.SuspendLayout();
             this.splitter.Panel2.SuspendLayout();
             this.splitter.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.filterColorIntensity)).BeginInit();
             this.SuspendLayout();
             // 
             // labelMixMode
             // 
             this.labelMixMode.AutoSize = true;
-            this.labelMixMode.Location = new System.Drawing.Point(3, 8);
+            this.labelMixMode.Location = new System.Drawing.Point(4, 12);
+            this.labelMixMode.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelMixMode.Name = "labelMixMode";
-            this.labelMixMode.Size = new System.Drawing.Size(37, 13);
+            this.labelMixMode.Size = new System.Drawing.Size(53, 20);
             this.labelMixMode.TabIndex = 0;
             this.labelMixMode.Text = "Show:";
             // 
             // label
             // 
             this.label.AutoSize = true;
-            this.label.Location = new System.Drawing.Point(164, 9);
+            this.label.Location = new System.Drawing.Point(246, 14);
+            this.label.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label.Name = "label";
-            this.label.Size = new System.Drawing.Size(32, 13);
+            this.label.Size = new System.Drawing.Size(48, 20);
             this.label.TabIndex = 0;
             this.label.Text = "Filter:";
             // 
@@ -76,6 +83,7 @@ namespace CodeImp.DoomBuilder.Controls
             this.splitter.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
             this.splitter.IsSplitterFixed = true;
             this.splitter.Location = new System.Drawing.Point(0, 0);
+            this.splitter.Margin = new System.Windows.Forms.Padding(4);
             this.splitter.Name = "splitter";
             this.splitter.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
@@ -85,6 +93,9 @@ namespace CodeImp.DoomBuilder.Controls
             // 
             // splitter.Panel2
             // 
+            this.splitter.Panel2.Controls.Add(this.filterColorIntensity);
+            this.splitter.Panel2.Controls.Add(this.filterColor);
+            this.splitter.Panel2.Controls.Add(this.filterColorCheckBox);
             this.splitter.Panel2.Controls.Add(this.classicview);
             this.splitter.Panel2.Controls.Add(this.objectclear);
             this.splitter.Panel2.Controls.Add(this.sizecombo);
@@ -99,8 +110,9 @@ namespace CodeImp.DoomBuilder.Controls
             this.splitter.Panel2.Controls.Add(this.labelMixMode);
             this.splitter.Panel2.Controls.Add(this.objectname);
             this.splitter.Panel2.Controls.Add(this.label);
-            this.splitter.Size = new System.Drawing.Size(840, 346);
-            this.splitter.SplitterDistance = 284;
+            this.splitter.Size = new System.Drawing.Size(1260, 519);
+            this.splitter.SplitterDistance = 333;
+            this.splitter.SplitterWidth = 6;
             this.splitter.TabIndex = 0;
             this.splitter.TabStop = false;
             // 
@@ -115,20 +127,55 @@ namespace CodeImp.DoomBuilder.Controls
             this.list.HideSelection = false;
             this.list.ImageSize = 128;
             this.list.Location = new System.Drawing.Point(0, 0);
+            this.list.Margin = new System.Windows.Forms.Padding(4);
             this.list.MultiSelect = false;
             this.list.Name = "list";
-            this.list.Size = new System.Drawing.Size(840, 284);
+            this.list.Size = new System.Drawing.Size(1260, 333);
             this.list.TabIndex = 1;
             this.list.Title = "Default group";
+            this.list.UsedTexturesFirst = false;
             this.list.ItemDoubleClicked += new CodeImp.DoomBuilder.Controls.ImageSelectorPanel.ItemSelectedEventHandler(this.list_ItemDoubleClicked);
             this.list.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.list_KeyPress);
+            // 
+            // filterColorIntensity
+            // 
+            this.filterColorIntensity.Location = new System.Drawing.Point(943, 48);
+            this.filterColorIntensity.Maximum = 200;
+            this.filterColorIntensity.Minimum = 50;
+            this.filterColorIntensity.Name = "filterColorIntensity";
+            this.filterColorIntensity.Size = new System.Drawing.Size(191, 69);
+            this.filterColorIntensity.TabIndex = 7;
+            this.filterColorIntensity.TickFrequency = 10;
+            this.filterColorIntensity.Value = 100;
+            this.filterColorIntensity.Scroll += new System.EventHandler(this.filterColorIntensity_Scroll);
+            // 
+            // filterColor
+            // 
+            this.filterColor.Location = new System.Drawing.Point(882, 50);
+            this.filterColor.Name = "filterColor";
+            this.filterColor.Size = new System.Drawing.Size(55, 27);
+            this.filterColor.TabIndex = 6;
+            this.filterColor.UseVisualStyleBackColor = true;
+            this.filterColor.Click += new System.EventHandler(this.filterColor_Click);
+            // 
+            // filterColorCheckBox
+            // 
+            this.filterColorCheckBox.AutoSize = true;
+            this.filterColorCheckBox.Location = new System.Drawing.Point(765, 52);
+            this.filterColorCheckBox.Name = "filterColorCheckBox";
+            this.filterColorCheckBox.Size = new System.Drawing.Size(111, 24);
+            this.filterColorCheckBox.TabIndex = 5;
+            this.filterColorCheckBox.Text = "Filter Color";
+            this.filterColorCheckBox.UseVisualStyleBackColor = true;
+            this.filterColorCheckBox.CheckedChanged += new System.EventHandler(this.filterColorCheckBox_CheckedChanged);
             // 
             // classicview
             // 
             this.classicview.AutoSize = true;
-            this.classicview.Location = new System.Drawing.Point(510, 8);
+            this.classicview.Location = new System.Drawing.Point(765, 12);
+            this.classicview.Margin = new System.Windows.Forms.Padding(4);
             this.classicview.Name = "classicview";
-            this.classicview.Size = new System.Drawing.Size(84, 17);
+            this.classicview.Size = new System.Drawing.Size(119, 24);
             this.classicview.TabIndex = 4;
             this.classicview.TabStop = false;
             this.classicview.Text = "Classic view";
@@ -138,9 +185,10 @@ namespace CodeImp.DoomBuilder.Controls
             // objectclear
             // 
             this.objectclear.Image = global::CodeImp.DoomBuilder.Properties.Resources.Close;
-            this.objectclear.Location = new System.Drawing.Point(330, 4);
+            this.objectclear.Location = new System.Drawing.Point(495, 6);
+            this.objectclear.Margin = new System.Windows.Forms.Padding(4);
             this.objectclear.Name = "objectclear";
-            this.objectclear.Size = new System.Drawing.Size(26, 23);
+            this.objectclear.Size = new System.Drawing.Size(39, 34);
             this.objectclear.TabIndex = 3;
             this.objectclear.TabStop = false;
             this.objectclear.UseVisualStyleBackColor = true;
@@ -158,10 +206,10 @@ namespace CodeImp.DoomBuilder.Controls
             "128",
             "192",
             "256"});
-            this.sizecombo.Location = new System.Drawing.Point(43, 32);
-            this.sizecombo.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
+            this.sizecombo.Location = new System.Drawing.Point(64, 48);
+            this.sizecombo.Margin = new System.Windows.Forms.Padding(4, 4, 9, 4);
             this.sizecombo.Name = "sizecombo";
-            this.sizecombo.Size = new System.Drawing.Size(107, 21);
+            this.sizecombo.Size = new System.Drawing.Size(158, 28);
             this.sizecombo.TabIndex = 2;
             this.sizecombo.TabStop = false;
             this.sizecombo.SelectedIndexChanged += new System.EventHandler(this.sizecombo_SelectedIndexChanged);
@@ -169,18 +217,20 @@ namespace CodeImp.DoomBuilder.Controls
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(10, 35);
+            this.label1.Location = new System.Drawing.Point(15, 52);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(30, 13);
+            this.label1.Size = new System.Drawing.Size(44, 20);
             this.label1.TabIndex = 1;
             this.label1.Text = "Size:";
             // 
             // usedtexturesfirst
             // 
             this.usedtexturesfirst.AutoSize = true;
-            this.usedtexturesfirst.Location = new System.Drawing.Point(365, 8);
+            this.usedtexturesfirst.Location = new System.Drawing.Point(548, 12);
+            this.usedtexturesfirst.Margin = new System.Windows.Forms.Padding(4);
             this.usedtexturesfirst.Name = "usedtexturesfirst";
-            this.usedtexturesfirst.Size = new System.Drawing.Size(139, 17);
+            this.usedtexturesfirst.Size = new System.Drawing.Size(206, 24);
             this.usedtexturesfirst.TabIndex = 0;
             this.usedtexturesfirst.TabStop = false;
             this.usedtexturesfirst.Text = "Used textures at the top";
@@ -190,9 +240,10 @@ namespace CodeImp.DoomBuilder.Controls
             // longtexturenames
             // 
             this.longtexturenames.AutoSize = true;
-            this.longtexturenames.Location = new System.Drawing.Point(365, 34);
+            this.longtexturenames.Location = new System.Drawing.Point(548, 51);
+            this.longtexturenames.Margin = new System.Windows.Forms.Padding(4);
             this.longtexturenames.Name = "longtexturenames";
-            this.longtexturenames.Size = new System.Drawing.Size(119, 17);
+            this.longtexturenames.Size = new System.Drawing.Size(176, 24);
             this.longtexturenames.TabIndex = 0;
             this.longtexturenames.TabStop = false;
             this.longtexturenames.Text = "Long texture names";
@@ -202,9 +253,10 @@ namespace CodeImp.DoomBuilder.Controls
             // filterheightlabel
             // 
             this.filterheightlabel.AutoSize = true;
-            this.filterheightlabel.Location = new System.Drawing.Point(258, 35);
+            this.filterheightlabel.Location = new System.Drawing.Point(387, 52);
+            this.filterheightlabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.filterheightlabel.Name = "filterheightlabel";
-            this.filterheightlabel.Size = new System.Drawing.Size(41, 13);
+            this.filterheightlabel.Size = new System.Drawing.Size(60, 20);
             this.filterheightlabel.TabIndex = 0;
             this.filterheightlabel.Text = "Height:";
             // 
@@ -220,9 +272,10 @@ namespace CodeImp.DoomBuilder.Controls
             this.filterHeight.ButtonStepSmall = 0.1F;
             this.filterHeight.ButtonStepsUseModifierKeys = false;
             this.filterHeight.ButtonStepsWrapAround = false;
-            this.filterHeight.Location = new System.Drawing.Point(301, 30);
+            this.filterHeight.Location = new System.Drawing.Point(452, 45);
+            this.filterHeight.Margin = new System.Windows.Forms.Padding(6);
             this.filterHeight.Name = "filterHeight";
-            this.filterHeight.Size = new System.Drawing.Size(54, 24);
+            this.filterHeight.Size = new System.Drawing.Size(81, 30);
             this.filterHeight.StepValues = null;
             this.filterHeight.TabIndex = 0;
             this.filterHeight.TabStop = false;
@@ -231,9 +284,10 @@ namespace CodeImp.DoomBuilder.Controls
             // filterwidthlabel
             // 
             this.filterwidthlabel.AutoSize = true;
-            this.filterwidthlabel.Location = new System.Drawing.Point(159, 35);
+            this.filterwidthlabel.Location = new System.Drawing.Point(238, 52);
+            this.filterwidthlabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.filterwidthlabel.Name = "filterwidthlabel";
-            this.filterwidthlabel.Size = new System.Drawing.Size(38, 13);
+            this.filterwidthlabel.Size = new System.Drawing.Size(54, 20);
             this.filterwidthlabel.TabIndex = 0;
             this.filterwidthlabel.Text = "Width:";
             // 
@@ -249,9 +303,10 @@ namespace CodeImp.DoomBuilder.Controls
             this.filterWidth.ButtonStepSmall = 0.1F;
             this.filterWidth.ButtonStepsUseModifierKeys = false;
             this.filterWidth.ButtonStepsWrapAround = false;
-            this.filterWidth.Location = new System.Drawing.Point(199, 30);
+            this.filterWidth.Location = new System.Drawing.Point(298, 45);
+            this.filterWidth.Margin = new System.Windows.Forms.Padding(6);
             this.filterWidth.Name = "filterWidth";
-            this.filterWidth.Size = new System.Drawing.Size(54, 24);
+            this.filterWidth.Size = new System.Drawing.Size(81, 30);
             this.filterWidth.StepValues = null;
             this.filterWidth.TabIndex = 0;
             this.filterWidth.TabStop = false;
@@ -266,10 +321,10 @@ namespace CodeImp.DoomBuilder.Controls
             "Textures",
             "Flats",
             "By selection type"});
-            this.texturetypecombo.Location = new System.Drawing.Point(43, 5);
-            this.texturetypecombo.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
+            this.texturetypecombo.Location = new System.Drawing.Point(64, 8);
+            this.texturetypecombo.Margin = new System.Windows.Forms.Padding(4, 4, 9, 4);
             this.texturetypecombo.Name = "texturetypecombo";
-            this.texturetypecombo.Size = new System.Drawing.Size(107, 21);
+            this.texturetypecombo.Size = new System.Drawing.Size(158, 28);
             this.texturetypecombo.TabIndex = 0;
             this.texturetypecombo.TabStop = false;
             this.texturetypecombo.SelectedIndexChanged += new System.EventHandler(this.texturetypecombo_SelectedIndexChanged);
@@ -278,10 +333,10 @@ namespace CodeImp.DoomBuilder.Controls
             // 
             this.objectname.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
             this.objectname.HideSelection = false;
-            this.objectname.Location = new System.Drawing.Point(199, 6);
-            this.objectname.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
+            this.objectname.Location = new System.Drawing.Point(298, 9);
+            this.objectname.Margin = new System.Windows.Forms.Padding(4, 4, 9, 4);
             this.objectname.Name = "objectname";
-            this.objectname.Size = new System.Drawing.Size(128, 20);
+            this.objectname.Size = new System.Drawing.Size(190, 26);
             this.objectname.TabIndex = 0;
             this.objectname.TabStop = false;
             this.objectname.TextChanged += new System.EventHandler(this.objectname_TextChanged);
@@ -294,15 +349,17 @@ namespace CodeImp.DoomBuilder.Controls
             // 
             // ImageBrowserControl
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(144F, 144F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.Controls.Add(this.splitter);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "ImageBrowserControl";
-            this.Size = new System.Drawing.Size(840, 346);
+            this.Size = new System.Drawing.Size(1260, 519);
             this.splitter.Panel1.ResumeLayout(false);
             this.splitter.Panel2.ResumeLayout(false);
             this.splitter.Panel2.PerformLayout();
             this.splitter.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.filterColorIntensity)).EndInit();
             this.ResumeLayout(false);
 
 		}
@@ -326,5 +383,9 @@ namespace CodeImp.DoomBuilder.Controls
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Button objectclear;
         private System.Windows.Forms.CheckBox classicview;
+        private System.Windows.Forms.Button filterColor;
+        private System.Windows.Forms.CheckBox filterColorCheckBox;
+        private System.Windows.Forms.ColorDialog filterColorDialog;
+        private System.Windows.Forms.TrackBar filterColorIntensity;
     }
 }

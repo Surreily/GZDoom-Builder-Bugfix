@@ -58,6 +58,7 @@ namespace CodeImp.DoomBuilder.Data
 		protected bool ismasked; //mxd. If true, has pixels with zero alpha
 		protected bool hasLongName; //mxd. Texture name is longer than DataManager.CLASIC_IMAGE_NAME_LENGTH
 		protected bool hasPatchWithSameName; //mxd
+        protected PixelColor averageColor; //surreily
 
 		//mxd. Hashing
 		private static int hashcounter;
@@ -102,6 +103,7 @@ namespace CodeImp.DoomBuilder.Data
 		public bool IsTranslucent { get { return istranslucent; } } //mxd
 		public bool IsMasked { get { return ismasked; } } //mxd
 		public bool HasPatchWithSameName { get { return hasPatchWithSameName; } } //mxd
+        public PixelColor AverageColor { get { return averageColor; } } //surreily
 		internal bool HasLongName { get { return hasLongName; } } //mxd
 		public bool UseColorCorrection { get { return usecolorcorrection; } set { usecolorcorrection = value; } }
 		public Texture Texture { get { lock (this) lock (bitmap ?? bitmapLocker) { return texture; } } }
@@ -344,72 +346,83 @@ namespace CodeImp.DoomBuilder.Data
 
 					if(!loadfailed)
 					{
+                        bool shouldCalculateGlow = General.Map != null && General.Map.Data != null && General.Map.Data.GlowingFlats != null &&
+                           General.Map.Data.GlowingFlats.ContainsKey(longname) &&
+                           General.Map.Data.GlowingFlats[longname].CalculateTextureColor;
+
 						//mxd. Check translucency and calculate average color?
-						if(General.Map != null && General.Map.Data != null && General.Map.Data.GlowingFlats != null &&
-						   General.Map.Data.GlowingFlats.ContainsKey(longname) &&
-						   General.Map.Data.GlowingFlats[longname].CalculateTextureColor)
+						BitmapData bmpdata = null;
+						try
 						{
-							BitmapData bmpdata = null;
-							try
+							bmpdata = bitmap.LockBits(new Rectangle(0, 0, bitmap.Size.Width, bitmap.Size.Height), ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
+						}
+						catch(Exception e)
+						{
+							General.ErrorLogger.Add(ErrorType.Error, "Cannot lock image \"" + this.filepathname + "\" for glow color calculation. " + e.GetType().Name + ": " + e.Message);
+						}
+
+						if(bmpdata != null)
+						{
+							PixelColor* pixels = (PixelColor*)(bmpdata.Scan0.ToPointer());
+							int numpixels = bmpdata.Width * bmpdata.Height;
+							uint r = 0;
+							uint g = 0;
+							uint b = 0;
+
+							for(PixelColor* cp = pixels + numpixels - 1; cp >= pixels; cp--)
 							{
-								bmpdata = bitmap.LockBits(new Rectangle(0, 0, bitmap.Size.Width, bitmap.Size.Height), ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
+								r += cp->r;
+								g += cp->g;
+								b += cp->b;
+
+								// Also check alpha
+                                if (shouldCalculateGlow)
+                                {
+                                    if (cp->a > 0 && cp->a < 255) istranslucent = true;
+                                    else if (cp->a == 0) ismasked = true;
+                                }
 							}
-							catch(Exception e)
-							{
-								General.ErrorLogger.Add(ErrorType.Error, "Cannot lock image \"" + this.filepathname + "\" for glow color calculation. " + e.GetType().Name + ": " + e.Message);
-							}
 
-							if(bmpdata != null)
-							{
-								PixelColor* pixels = (PixelColor*)(bmpdata.Scan0.ToPointer());
-								int numpixels = bmpdata.Width * bmpdata.Height;
-								uint r = 0;
-								uint g = 0;
-								uint b = 0;
+							// Update glow data
+							int br = (int)(r / numpixels);
+							int bg = (int)(g / numpixels);
+							int bb = (int)(b / numpixels);
 
-								for(PixelColor* cp = pixels + numpixels - 1; cp >= pixels; cp--)
-								{
-									r += cp->r;
-									g += cp->g;
-									b += cp->b;
+							int max = Math.Max(br, Math.Max(bg, bb));
 
-									// Also check alpha
-									if(cp->a > 0 && cp->a < 255) istranslucent = true;
-									else if(cp->a == 0) ismasked = true;
-								}
+                            // Save the average color.
+                            if (max == 0)
+                            {
+                                averageColor = new PixelColor(255, 0, 0, 0);
+                            }
+                            else 
+                            {
+                                averageColor = new PixelColor(255, (byte)br, (byte)bg, (byte)bb);
+                            }
 
-								// Update glow data
-								int br = (int)(r / numpixels);
-								int bg = (int)(g / numpixels);
-								int bb = (int)(b / numpixels);
+                            if (shouldCalculateGlow) {
+                                // Black can't glow...
+                                if (max == 0) {
+                                    General.Map.Data.GlowingFlats.Remove(longname);
+                                } else {
+                                    // That's how it's done in GZDoom (and I may be totally wrong about this)
+                                    br = Math.Min(255, br * 153 / max);
+                                    bg = Math.Min(255, bg * 153 / max);
+                                    bb = Math.Min(255, bb * 153 / max);
 
-								int max = Math.Max(br, Math.Max(bg, bb));
+                                    General.Map.Data.GlowingFlats[longname].Color = new PixelColor(255, (byte)br, (byte)bg, (byte)bb);
+                                    General.Map.Data.GlowingFlats[longname].CalculateTextureColor = false;
+                                    if (!General.Map.Data.GlowingFlats[longname].Fullbright) General.Map.Data.GlowingFlats[longname].Brightness = (br + bg + bb) / 3;
+                                }
+                            }
 
-								// Black can't glow...
-								if(max == 0)
-								{
-									General.Map.Data.GlowingFlats.Remove(longname);
-								}
-								else
-								{
-									// That's how it's done in GZDoom (and I may be totally wrong about this)
-									br = Math.Min(255, br * 153 / max);
-									bg = Math.Min(255, bg * 153 / max);
-									bb = Math.Min(255, bb * 153 / max);
-
-									General.Map.Data.GlowingFlats[longname].Color = new PixelColor(255, (byte)br, (byte)bg, (byte)bb);
-									General.Map.Data.GlowingFlats[longname].CalculateTextureColor = false;
-									if(!General.Map.Data.GlowingFlats[longname].Fullbright) General.Map.Data.GlowingFlats[longname].Brightness = (br + bg + bb) / 3;
-								}
-
-								// Release the data
-								bitmap.UnlockBits(bmpdata);
-							}
+							// Release the data
+							bitmap.UnlockBits(bmpdata);
 						}
 						//mxd. Check if the texture is translucent
-						else
+						if (!shouldCalculateGlow)
 						{
-							BitmapData bmpdata = null;
+							bmpdata = null;
 							try
 							{
 								bmpdata = bitmap.LockBits(new Rectangle(0, 0, bitmap.Size.Width, bitmap.Size.Height), ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);

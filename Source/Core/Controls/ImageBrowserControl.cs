@@ -22,6 +22,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using CodeImp.DoomBuilder.Data;
 using CodeImp.DoomBuilder.Windows;
+using CodeImp.DoomBuilder.Rendering;
 
 #endregion
 
@@ -29,8 +30,13 @@ namespace CodeImp.DoomBuilder.Controls
 {
 	internal partial class ImageBrowserControl : UserControl
 	{
-		#region ================== Constants
-		
+        #region ================== Constants
+
+        private const double ColorWeightR = 0.299;
+        private const double ColorWeightG = 0.587;
+        private const double ColorWeightB = 0.114;
+        private const double ColorUMax = 0.436;
+        private const double ColorVMax = 0.615;
 		private static readonly HashSet<char> AllowedSpecialChars = new HashSet<char>("!@#$%^&*()-_=+<>,.?/'\"\\;:[]{}`~".ToCharArray()); //mxd
 
 		#endregion
@@ -393,6 +399,30 @@ namespace CodeImp.DoomBuilder.Controls
             }
         }
 
+        private void filterColorCheckBox_CheckedChanged(object sender, EventArgs e) {
+            filterColor.Enabled = filterColorCheckBox.Checked;
+            filterColorIntensity.Enabled = filterColorCheckBox.Checked;
+
+            // Update list
+            RefillList(false);
+        }
+
+        private void filterColor_Click(object sender, EventArgs e) {
+            var result = filterColorDialog.ShowDialog(this);
+
+            if (result == DialogResult.OK) {
+                filterColor.BackColor = filterColorDialog.Color;
+
+                // Update list
+                RefillList(false);
+            }
+        }
+
+        private void filterColorIntensity_Scroll(object sender, EventArgs e) {
+            // Update list
+            RefillList(false);
+        }
+
         #endregion
 
         #region ================== Methods
@@ -503,6 +533,14 @@ namespace CodeImp.DoomBuilder.Controls
 			//mxd. Filtering by texture size?
 			int w = filterWidth.GetResult(-1);
 			int h = filterHeight.GetResult(-1);
+
+            PixelColor? c;
+            if (filterColorCheckBox.Checked) {
+                c = new PixelColor(255, filterColor.BackColor.R, filterColor.BackColor.G, filterColor.BackColor.B);
+            } else {
+                c = null;
+            }
+            int intensity = filterColorIntensity.Value;
 			
 			// Go for all items
 			ImageBrowserItem previtem = null; //mxd
@@ -513,7 +551,7 @@ namespace CodeImp.DoomBuilder.Controls
 				switch(items[i].ItemType)
 				{
 					case ImageBrowserItemType.IMAGE:
-						if(ValidateItem(items[i], previtem) && ValidateItemSize(items[i], w, h))
+						if(ValidateItem(items[i], previtem) && ValidateItemSize(items[i], w, h) && ValidateItemColor(items[i], c, intensity))
 						{
 							visibleitems.Add(items[i]);
 							previtem = items[i];
@@ -622,8 +660,39 @@ namespace CodeImp.DoomBuilder.Controls
 			return true;
 		}
 
-		//mxd
-		private int SortItems(ImageBrowserItem item1, ImageBrowserItem item2)
+        private static bool ValidateItemColor(ImageBrowserItem i, PixelColor? c, int intensity) {
+            if (c == null) {
+                return true;
+            }
+
+            double iy = CalculateColorY(i.Icon.AverageColor);
+            double cy = CalculateColorY(c.Value);
+
+            double iu = CalculateColorU(iy, i.Icon.AverageColor);
+            double cu = CalculateColorU(cy, c.Value);
+
+            double iv = CalculateColorV(iy, i.Icon.AverageColor);
+            double cv = CalculateColorV(cy, c.Value);
+
+            double distance = Math.Sqrt(Math.Pow(iy - cy, 2) + Math.Pow(iu - cu, 2) + Math.Pow(iv - cv, 2));
+
+            return distance < intensity;
+        }
+
+        private static double CalculateColorY(PixelColor c) {
+            return (ColorWeightR * c.r) + (ColorWeightG * c.g) + (ColorWeightB * c.b);
+        }
+
+        private static double CalculateColorU(double y, PixelColor c) {
+            return ColorUMax * ((c.b - y) / (1d - ColorWeightB));
+        }
+
+        private static double CalculateColorV(double y, PixelColor c) {
+            return ColorVMax * ((c.r - y) / (1d - ColorWeightR));
+        }
+
+        //mxd
+        private int SortItems(ImageBrowserItem item1, ImageBrowserItem item2)
 		{
 			if(usedtexturesfirst.Checked 
 				&& item1.ItemType == ImageBrowserItemType.IMAGE 
@@ -644,5 +713,7 @@ namespace CodeImp.DoomBuilder.Controls
 		}
 
         #endregion
+
+        
     }
 }
